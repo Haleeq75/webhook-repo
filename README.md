@@ -86,7 +86,7 @@ PORT=5000
 
 If you use MongoDB Atlas, replace `MONGO_URI` with your Atlas connection string.
 
-> ⚠️ Security note: keep `.env` private and never commit it to GitHub. This repo ignores `.env` via `.gitignore`.
+> Security note: keep `.env` private and never commit it to GitHub. This repo ignores `.env` via `.gitignore`.
 > If you accidentally shared credentials (for example in chat/screenshots), rotate your MongoDB password immediately.
 
 ---
