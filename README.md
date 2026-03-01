@@ -82,5 +82,5 @@ Open:
 
 ---
 
-This version is for leanring purpose and for assignment. Its not final and production ready repo
+This version is for learning purpose and for assignment. Its not final and production ready repo
 
