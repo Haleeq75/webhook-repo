@@ -3,16 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Webhook Events</title>
+    <title>GitHub Webhook Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   </head>
   <body>
     <main class="container">
-      <h1>GitHub Webhook Activity</h1>
-      <p class="subtitle">Auto-refreshing every 15 seconds.</p>
-      <ul id="events" class="events-list"></ul>
-      <p id="status" class="status"></p>
+      <div id="root"></div>
     </main>
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
+
+    <script type="text/babel" src="{{ url_for('static', filename='react-app.jsx') }}"></script>
   </body>
 </html>

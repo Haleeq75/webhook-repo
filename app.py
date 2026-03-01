@@ -1,9 +1,6 @@
 from __future__ import annotations
 
 import os
-from datetime import UTC, datetime
-from typing import Any
-from uuid import uuid4
 from datetime import datetime, timezone
 from typing import Any
 
@@ -25,16 +22,19 @@ events_collection = db[MONGO_COLLECTION_NAME]
 app = Flask(__name__)
 
 
+# ----------------------------
+# Helpers
+# ----------------------------
 def _iso_utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
 def _build_push_event(payload: dict[str, Any]) -> dict[str, Any]:
     return {
-        "request_id": payload.get("after"),
+        "request_id": payload.get("after") or "",
         "author": payload.get("pusher", {}).get("name", "unknown"),
         "action": "push",
-        "from_branch": payload.get("before"),
+        "from_branch": payload.get("before") or "",
         "to_branch": (payload.get("ref") or "").replace("refs/heads/", ""),
         "timestamp": payload.get("head_commit", {}).get("timestamp") or _iso_utc_now(),
     }
@@ -46,8 +46,8 @@ def _build_pr_event(payload: dict[str, Any], action: str) -> dict[str, Any]:
         "request_id": str(pr.get("id") or payload.get("number") or ""),
         "author": pr.get("user", {}).get("login", "unknown"),
         "action": action,
-        "from_branch": pr.get("head", {}).get("ref"),
-        "to_branch": pr.get("base", {}).get("ref"),
+        "from_branch": pr.get("head", {}).get("ref") or "",
+        "to_branch": pr.get("base", {}).get("ref") or "",
         "timestamp": pr.get("updated_at") or _iso_utc_now(),
     }
 
@@ -69,6 +69,9 @@ def _extract_event(payload: dict[str, Any], github_event: str) -> dict[str, Any]
     return None
 
 
+# ----------------------------
+# Routes
+# ----------------------------
 @app.get("/")
 def index() -> str:
     return render_template("index.html")
@@ -86,26 +89,24 @@ def webhook() -> tuple[dict[str, Any], int]:
     result = events_collection.insert_one(event_doc)
     event_doc["id"] = str(result.inserted_id)
 
-    return {"status": "ok"}, 200
+    return {"status": "ok", "id": event_doc["id"]}, 200
 
 
 @app.get("/api/events")
 def get_events() -> Any:
     docs = list(events_collection.find().sort("_id", DESCENDING).limit(50))
-    formatted: list[dict[str, Any]] = []
-
-    for doc in docs:
-        formatted.append(
-            {
-                "id": str(doc.get("_id")),
-                "request_id": doc.get("request_id"),
-                "author": doc.get("author"),
-                "action": doc.get("action"),
-                "from_branch": doc.get("from_branch"),
-                "to_branch": doc.get("to_branch"),
-                "timestamp": doc.get("timestamp"),
-            }
-        )
+    formatted = [
+        {
+            "id": str(doc.get("_id")),
+            "request_id": doc.get("request_id"),
+            "author": doc.get("author"),
+            "action": doc.get("action"),
+            "from_branch": doc.get("from_branch"),
+            "to_branch": doc.get("to_branch"),
+            "timestamp": doc.get("timestamp"),
+        }
+        for doc in docs
+    ]
 
     return jsonify(formatted)
 
