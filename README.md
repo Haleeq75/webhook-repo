@@ -82,4 +82,5 @@ Open:
 
 ---
 
-This version is intentionally simple and clean for assignment/demo use (not full production hardening).
+This version is for leanring purpose and for assignment. Its not final and production ready repo
+
